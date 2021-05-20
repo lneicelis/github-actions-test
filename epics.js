@@ -68,7 +68,7 @@ async function updateEpics({ octokit, epics }) {
   return Promise.all(epics.map((epic) => updateEpic({ octokit, epic })));
 }
 
-async function run() {
+export async function run() {
   try {
     const token = core.getInput('github-token', { required: true });
 
@@ -84,4 +84,4 @@ async function run() {
   }
 }
 
-run();
+module.exports = run;
