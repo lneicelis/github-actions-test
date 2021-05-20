@@ -68,11 +68,6 @@ module.exports = async function ({github, core}) {
   
   try {
     const token = core.getInput('github-token', { required: true });
-
-    const octokit = new github.GitHub(token, {
-      previews: ['mockingbird-preview'],
-    });
-
     const epics = await getReferencedEpics({ octokit, epicLabelName: 'epic' });
     await updateEpics({ octokit, epics });
   } catch (error) {
