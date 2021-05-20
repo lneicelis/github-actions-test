@@ -1,6 +1,3 @@
-import * as core from '@actions/core';
-import * as github from '@actions/github';
-
 async function getReferencedEpics({ octokit, epicLabelName }) {
   if (github.context.payload.action !== 'deleted') {
     const events = await octokit.issues.listEventsForTimeline({
@@ -66,7 +63,9 @@ async function updateEpics({ octokit, epics }) {
   return Promise.all(epics.map((epic) => updateEpic({ octokit, epic })));
 }
 
-export async function run() {
+module.exports = async function () {
+  console.log('hello');
+  
   try {
     const token = core.getInput('github-token', { required: true });
 
@@ -81,5 +80,3 @@ export async function run() {
     core.setFailed(error.message);
   }
 }
-
-module.exports = run;
