@@ -1,9 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
-async function getReferencedEpics({ octokit }) {
-  const epicLabelName = core.getInput('epic-label-name', { required: true });
-
+async function getReferencedEpics({ octokit, epicLabelName }) {
   if (github.context.payload.action !== 'deleted') {
     const events = await octokit.issues.listEventsForTimeline({
       owner: github.context.repo.owner,
@@ -21,7 +19,7 @@ async function getReferencedEpics({ octokit }) {
 }
 
 async function updateEpic({ octokit, epic }) {
-  const autoCloseEpic = core.getInput('auto-close-epic', { required: false });
+  const autoCloseEpic = false;
 
   const issueNumber = github.context.payload.issue.number;
   const issueState = github.context.payload.issue.state;
@@ -76,7 +74,7 @@ export async function run() {
       previews: ['mockingbird-preview'],
     });
 
-    const epics = await getReferencedEpics({ octokit });
+    const epics = await getReferencedEpics({ octokit, epicLabelName: 'epic' });
     await updateEpics({ octokit, epics });
   } catch (error) {
     core.error(error);
