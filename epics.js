@@ -1,6 +1,6 @@
-async function getReferencedEpics({ github, octokit, epicLabelName }) {
+async function getReferencedEpics({ github, epicLabelName }) {
   if (github.context.payload.action !== 'deleted') {
-    const events = await octokit.issues.listEventsForTimeline({
+    const events = await github.issues.listEventsForTimeline({
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
       issue_number: github.context.payload.issue.number,
@@ -15,7 +15,7 @@ async function getReferencedEpics({ github, octokit, epicLabelName }) {
   return [];
 }
 
-async function updateEpic({ github, octokit, epic }) {
+async function updateEpic({ github, epic }) {
   const autoCloseEpic = false;
 
   const issueNumber = github.context.payload.issue.number;
@@ -48,7 +48,7 @@ async function updateEpic({ github, octokit, epic }) {
     epicState = 'closed';
   }
 
-  const result = await octokit.issues.update({
+  const result = await github.issues.update({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     issue_number: epicNumber,
@@ -59,8 +59,8 @@ async function updateEpic({ github, octokit, epic }) {
   return result;
 }
 
-async function updateEpics({ octokit, epics }) {
-  return Promise.all(epics.map((epic) => updateEpic({ octokit, epic })));
+async function updateEpics({ github, epics }) {
+  return Promise.all(epics.map((epic) => updateEpic({ github, epic })));
 }
 
 module.exports = async function ({github, core}) {
@@ -68,8 +68,8 @@ module.exports = async function ({github, core}) {
   
   try {
     const token = core.getInput('github-token', { required: true });
-    const epics = await getReferencedEpics({ octokit, epicLabelName: 'epic' });
-    await updateEpics({ octokit, epics });
+    const epics = await getReferencedEpics({ github, epicLabelName: 'epic' });
+    await updateEpics({ github, epics });
   } catch (error) {
     core.error(error);
     core.setFailed(error.message);
