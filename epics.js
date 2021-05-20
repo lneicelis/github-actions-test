@@ -1,9 +1,9 @@
-async function getReferencedEpics({ github, epicLabelName }) {
-  if (github.context.payload.action !== 'deleted') {
+async function getReferencedEpics({ context, github, epicLabelName }) {
+  if (context.payload.action !== 'deleted') {
     const events = await github.issues.listEventsForTimeline({
-      owner: github.context.repo.owner,
-      repo: github.context.repo.repo,
-      issue_number: github.context.payload.issue.number,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: context.payload.issue.number,
     });
 
     return events.data
@@ -15,11 +15,11 @@ async function getReferencedEpics({ github, epicLabelName }) {
   return [];
 }
 
-async function updateEpic({ github, epic }) {
+async function updateEpic({ context, github, epic }) {
   const autoCloseEpic = false;
 
-  const issueNumber = github.context.payload.issue.number;
-  const issueState = github.context.payload.issue.state;
+  const issueNumber = context.payload.issue.number;
+  const issueState = context.payload.issue.state;
   const convertedIssueState = issueState === 'closed' ? 'x' : ' ';
   const epicNumber = epic.source.issue.number;
   let epicState = epic.source.issue.state;
@@ -49,8 +49,8 @@ async function updateEpic({ github, epic }) {
   }
 
   const result = await github.issues.update({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
     issue_number: epicNumber,
     body: epicBody,
     state: epicState,
@@ -59,17 +59,17 @@ async function updateEpic({ github, epic }) {
   return result;
 }
 
-async function updateEpics({ github, epics }) {
-  return Promise.all(epics.map((epic) => updateEpic({ github, epic })));
+async function updateEpics({ context, github, epics }) {
+  return Promise.all(epics.map((epic) => updateEpic({ context, github, epic })));
 }
 
-module.exports = async function ({github, core}) {
+module.exports = async function ({context, github, core}) {
   console.log('hello');
   
   try {
     const token = core.getInput('github-token', { required: true });
-    const epics = await getReferencedEpics({ github, epicLabelName: 'epic' });
-    await updateEpics({ github, epics });
+    const epics = await getReferencedEpics({ context, github, epicLabelName: 'epic' });
+    await updateEpics({ context, github, epics });
   } catch (error) {
     core.error(error);
     core.setFailed(error.message);
