@@ -10,7 +10,6 @@ jobs:
       - uses: actions/github-script@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          epic-label-name: epic
-          auto-close-epic: true
           script: |
-            const script = require('./epics.js')
+            import {run} from './epics.js';
+            run();
